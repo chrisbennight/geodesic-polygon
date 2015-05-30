@@ -31,9 +31,6 @@ import org.opengis.filter.FilterFactory;
 
 import javax.imageio.ImageIO;
 
-/**
- * Created by bennight on 5/29/2015.
- */
 public class MapRenderer {
 
 

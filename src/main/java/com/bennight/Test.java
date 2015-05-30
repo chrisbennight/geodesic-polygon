@@ -1,10 +1,8 @@
 package com.bennight;
 
-import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.Polygonal;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.sf.geographiclib.Geodesic;
@@ -17,15 +15,12 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-/**
- * Created by bennight on 5/29/2015.
- */
+
 public class Test {
 
     public static final String COASTLINE_SHAPE_FILE = "./target/coastline/ne_10m_coastline.shp";
     private static final String COASTLINE_DIR = "./target/coastline/";
     private static final int NUM_STEPS = 2000;
-    private static final int NUM_POLIES = 5;
     private static final Random RND = new Random(8675309);
 
     public static void main( String[] args ) throws Exception {
@@ -73,25 +68,20 @@ public class Test {
     private static List<Polygon> geodesifyPolygon(List<Polygon> polygons){
         List<Polygon> geodesifiedPolygons = new ArrayList<>();
         GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-        for (Polygon p : polygons){
+        for (Polygon p : polygons) {
             List<Coordinate> coords = new ArrayList<>();
             Coordinate[] oldCords = p.getCoordinates();
 
-            for (int i = 0; i < oldCords.length - 1; i++){
-                GeodesicData gd = Geodesic.WGS84.Inverse(oldCords[i].y, oldCords[i].x, oldCords[i+1].y, oldCords[i+1].x);
+            for (int i = 0; i < oldCords.length - 1; i++) {
+                GeodesicData gd = Geodesic.WGS84.Inverse(oldCords[i].y, oldCords[i].x, oldCords[i + 1].y, oldCords[i + 1].x);
                 GeodesicLine gl = Geodesic.WGS84.Line(gd.lat1, gd.lon1, gd.azi1);
-                for (int j = 0; j < NUM_STEPS + 1; j++){
+                for (int j = 0; j < NUM_STEPS + 1; j++) {
                     GeodesicData gdp = gl.Position(j * gd.s12 / NUM_STEPS);
                     coords.add(new Coordinate(gdp.lon2, gdp.lat2));
                 }
             }
             coords.set(coords.size() - 1, coords.get(0));
-            try {
-                geodesifiedPolygons.add(geometryFactory.createPolygon(coords.toArray(new Coordinate[coords.size()])));
-            }
-            catch (Exception ex) {
-                System.out.println("boom");
-            }
+            geodesifiedPolygons.add(geometryFactory.createPolygon(coords.toArray(new Coordinate[coords.size()])));
         }
         return geodesifiedPolygons;
     }
